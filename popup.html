@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoverWise™</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">CW</div>
+    <div class="logo-text">Cover<span>Wise</span><sup>™</sup></div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="historyBtn" title="Analysis history">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </button>
+    <button class="icon-btn" id="sidebarBtn" title="Toggle sidebar on page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- VIEWS -->
+<div id="uploadView" class="view active">
+  <div class="upload-zone" id="uploadZone">
+    <div class="upload-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="8 12 12 8 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+    </div>
+    <p class="upload-title">Drop your book cover</p>
+    <p class="upload-sub">JPG, PNG or PDF · or paste a URL</p>
+    <input type="file" id="fileInput" accept="image/*,.pdf" hidden>
+    <button class="btn-primary" id="chooseFileBtn">Choose file</button>
+  </div>
+
+  <div class="url-row">
+    <input type="text" id="imageUrl" placeholder="Paste image URL…" class="url-input">
+    <button class="btn-icon-green" id="urlAnalyzeBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <div class="meta-form">
+    <div class="form-row">
+      <label>Book title</label>
+      <input type="text" id="bookTitle" placeholder="e.g. The Worthy Mindset">
+    </div>
+    <div class="form-row two-col">
+      <div>
+        <label>Genre</label>
+        <select id="bookGenre">
+          <option value="">Select…</option>
+          <option>Self-Help</option>
+          <option>Romance</option>
+          <option>Thriller</option>
+          <option>Fantasy</option>
+          <option>Mystery</option>
+          <option>Business</option>
+          <option>Biography</option>
+          <option>Children's</option>
+          <option>Sci-Fi</option>
+          <option>Literary Fiction</option>
+          <option>Health & Wellness</option>
+          <option>Christian</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label>Audience</label>
+        <input type="text" id="bookAudience" placeholder="e.g. Women 25–55">
+      </div>
+    </div>
+  </div>
+
+  <div id="previewWrap" class="preview-wrap hidden">
+    <img id="previewImg" src="" alt="Cover preview">
+    <button class="clear-btn" id="clearBtn">✕</button>
+  </div>
+
+  <button class="btn-analyze" id="analyzeBtn" disabled>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Analyze cover
+  </button>
+</div>
+
+<!-- LOADING VIEW -->
+<div id="loadingView" class="view">
+  <div class="loading-state">
+    <div class="spinner-ring"></div>
+    <p class="loading-title">Analyzing your cover…</p>
+    <div class="loading-steps" id="loadingSteps">
+      <div class="step active" id="step1">Evaluating genre match</div>
+      <div class="step" id="step2">Testing thumbnail clarity</div>
+      <div class="step" id="step3">Checking readability</div>
+      <div class="step" id="step4">Scoring click potential</div>
+      <div class="step" id="step5">Generating report</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS VIEW -->
+<div id="resultsView" class="view">
+  <!-- Score hero -->
+  <div class="score-hero">
+    <div class="score-ring-wrap">
+      <svg class="score-svg" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="34" fill="none" stroke="#e8f5f1" stroke-width="6"/>
+        <circle cx="40" cy="40" r="34" fill="none" stroke="#1D9E75" stroke-width="6"
+          stroke-dasharray="213.6" stroke-dashoffset="213.6"
+          stroke-linecap="round" id="scoreArc"
+          style="transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); transform: rotate(-90deg); transform-origin: 50% 50%;"/>
+      </svg>
+      <div class="score-center">
+        <span class="score-num" id="scoreNum">0</span>
+        <span class="score-denom">/100</span>
+      </div>
+    </div>
+    <div class="score-meta">
+      <div class="verdict-badge" id="verdictBadge">Analyzing…</div>
+      <div class="score-book-title" id="scoreTitleDisplay"></div>
+      <div class="score-genre" id="scoreGenreDisplay"></div>
+    </div>
+  </div>
+
+  <!-- Dimension bars -->
+  <div class="section-block">
+    <div class="section-header">Breakdown</div>
+    <div class="dim-bars" id="dimBars"></div>
+  </div>
+
+  <!-- Thumbnail test -->
+  <div class="section-block">
+    <div class="section-header">Thumbnail test</div>
+    <div class="thumb-grid" id="thumbGrid"></div>
+  </div>
+
+  <!-- Suggestions -->
+  <div class="section-block">
+    <div class="section-header">Suggestions</div>
+    <div class="suggestions-list" id="suggestionsList"></div>
+  </div>
+
+  <!-- Genre expectations -->
+  <div class="section-block">
+    <div class="section-header">Genre fit</div>
+    <div class="genre-grid" id="genreGrid"></div>
+  </div>
+
+  <!-- Action row -->
+  <div class="action-row">
+    <button class="btn-secondary" id="shareBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Share score
+    </button>
+    <button class="btn-secondary" id="newAnalysisBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+      New analysis
+    </button>
+  </div>
+</div>
+
+<!-- HISTORY VIEW -->
+<div id="historyView" class="view">
+  <div class="view-top-bar">
+    <span class="view-label">Recent analyses</span>
+    <button class="text-btn" id="backFromHistoryBtn">← Back</button>
+  </div>
+  <div id="historyList" class="history-list"></div>
+  <div id="historyEmpty" class="empty-state hidden">
+    <p>No analyses yet.</p>
+    <p class="empty-sub">Upload a cover to get started.</p>
+  </div>
+</div>
+
+<!-- SHARE CARD VIEW -->
+<div id="shareView" class="view">
+  <div class="view-top-bar">
+    <span class="view-label">Share your score</span>
+    <button class="text-btn" id="backFromShareBtn">← Back</button>
+  </div>
+  <div class="share-card" id="shareCard">
+    <div class="share-accent"></div>
+    <div class="share-body">
+      <div class="share-score-row">
+        <div class="share-big-score" id="shareScore">87</div>
+        <div class="share-info">
+          <div class="share-book-name" id="shareBookName">Your Book</div>
+          <div class="share-detail" id="shareBookGenre">Self-Help</div>
+          <div class="share-detail">CoverWise™ score</div>
+        </div>
+      </div>
+      <div class="share-badges" id="shareBadges"></div>
+    </div>
+    <div class="share-footer">coverwise.app · Analyze your cover free</div>
+  </div>
+  <div class="share-actions">
+    <button class="btn-primary" id="copyShareBtn">Copy share text</button>
+    <button class="btn-secondary" id="downloadCardBtn">Download card</button>
+  </div>
+  <div class="share-preview-text" id="shareText"></div>
+</div>
+
+<!-- ERROR TOAST -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>

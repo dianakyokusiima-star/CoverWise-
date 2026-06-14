@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #1D9E75;
+  --green-light: #E1F5EE;
+  --green-dark: #0F6E56;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --red: #E24B4A;
+  --text-primary: #1a1a18;
+  --text-secondary: #5f5e5a;
+  --text-tertiary: #888780;
+  --bg: #ffffff;
+  --bg-secondary: #f6f5f1;
+  --border: rgba(0,0,0,0.1);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  background: var(--bg);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 6px; }
+.logo-mark {
+  width: 20px; height: 20px;
+  background: var(--green); color: #fff;
+  border-radius: 6px;
+  font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-text { font-size: 12px; font-weight: 600; }
+.logo-text span { color: var(--green); }
+.live-row { display: flex; align-items: center; gap: 4px; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.live-text { font-size: 10px; color: var(--green-dark); }
+.close-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-tertiary); font-size: 16px; padding: 0 0 0 8px;
+  line-height: 1;
+}
+
+.upload-section { padding: 12px; border-bottom: 0.5px solid var(--border); }
+.upload-mini {
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-secondary);
+  transition: border-color 0.2s;
+}
+.upload-mini:hover { border-color: var(--green); }
+.upload-mini p { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+.upload-mini input { display: none; }
+
+.meta-mini { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.meta-mini input, .meta-mini select {
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 11px;
+  outline: none;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+.meta-mini input:focus, .meta-mini select:focus { border-color: var(--green); }
+
+.btn-analyze-mini {
+  width: 100%;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+.btn-analyze-mini:hover:not(:disabled) { background: var(--green-dark); }
+.btn-analyze-mini:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.score-section {
+  padding: 12px;
+  border-bottom: 0.5px solid var(--border);
+  display: none;
+}
+.score-section.visible { display: block; }
+
+.score-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+.score-big { font-size: 32px; font-weight: 600; color: var(--green); line-height: 1; }
+.score-of { font-size: 12px; color: var(--text-tertiary); }
+.verdict-pill {
+  margin-left: auto;
+  font-size: 10px;
+  background: var(--green-light);
+  color: var(--green-dark);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.score-bar-track {
+  height: 3px; background: var(--bg-secondary);
+  border-radius: 2px; overflow: hidden;
+}
+.score-bar-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 1s ease; width: 0; }
+
+.dims-section { padding: 10px 12px; border-bottom: 0.5px solid var(--border); display: none; }
+.dims-section.visible { display: block; }
+.section-label {
+  font-size: 9px; letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.dim-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.dim-lbl { font-size: 10px; color: var(--text-secondary); width: 90px; flex-shrink: 0; }
+.dim-trk { flex: 1; height: 3px; background: var(--bg-secondary); border-radius: 2px; overflow: hidden; }
+.dim-fill { height: 100%; border-radius: 2px; transition: width 1s ease; width: 0; }
+.dim-v { font-size: 10px; font-weight: 500; width: 20px; text-align: right; }
+
+.hints-section { padding: 10px 12px; flex: 1; display: none; }
+.hints-section.visible { display: block; }
+.hint-item {
+  display: flex; gap: 6px; align-items: flex-start;
+  font-size: 10px; color: var(--text-secondary);
+  margin-bottom: 6px; line-height: 1.4;
+}
+.hint-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.hint-dot.warn { background: var(--amber); }
+.hint-dot.ok { background: var(--green); }
+.hint-dot.critical { background: var(--red); }
+
+.context-tag {
+  margin: 10px 12px 0;
+  display: none;
+}
+.context-tag.visible { display: block; }
+.ctx-label { font-size: 9px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.ctx-chip { display: inline-block; font-size: 10px; background: var(--green-light); color: var(--green-dark); padding: 2px 8px; border-radius: 20px; }
+
+.loading-mini {
+  padding: 20px 12px;
+  text-align: center;
+  display: none;
+}
+.loading-mini.visible { display: block; }
+.spinner-sm {
+  width: 28px; height: 28px;
+  border: 2px solid var(--green-light);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-mini p { font-size: 11px; color: var(--text-secondary); }
+
+.preview-mini { padding: 0 12px 10px; display: none; }
+.preview-mini.visible { display: block; }
+.preview-mini img { width: 100%; border-radius: 6px; border: 0.5px solid var(--border); max-height: 120px; object-fit: contain; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">CW</div>
+    <div class="logo-text">Cover<span>Wise</span>™</div>
+  </div>
+  <div class="live-row">
+    <div class="live-dot"></div>
+    <span class="live-text">Ready</span>
+  </div>
+  <button class="close-btn" id="closeBtn">×</button>
+</div>
+
+<!-- Upload -->
+<div class="upload-section">
+  <div class="upload-mini" id="uploadMini">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="8 12 12 8 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+    <p>Drop cover or click to upload</p>
+    <input type="file" id="sidebarFile" accept="image/*">
+  </div>
+  <div class="meta-mini">
+    <input type="text" id="sTitle" placeholder="Book title">
+    <select id="sGenre">
+      <option value="">Genre…</option>
+      <option>Self-Help</option><option>Romance</option><option>Thriller</option>
+      <option>Fantasy</option><option>Mystery</option><option>Business</option>
+      <option>Biography</option><option>Children's</option><option>Sci-Fi</option>
+      <option>Health & Wellness</option><option>Other</option>
+    </select>
+  </div>
+  <button class="btn-analyze-mini" id="sAnalyzeBtn" disabled>Analyze cover</button>
+</div>
+
+<div class="preview-mini" id="previewMini">
+  <img id="sPreviewImg" src="" alt="">
+</div>
+
+<!-- Loading -->
+<div class="loading-mini" id="loadingMini">
+  <div class="spinner-sm"></div>
+  <p>Analyzing cover…</p>
+</div>
+
+<!-- Score -->
+<div class="score-section" id="scoreSection">
+  <div class="score-row">
+    <span class="score-big" id="sBigScore">—</span>
+    <span class="score-of">/100</span>
+    <span class="verdict-pill" id="sVerdict"></span>
+  </div>
+  <div class="score-bar-track">
+    <div class="score-bar-fill" id="sBar"></div>
+  </div>
+</div>
+
+<!-- Dims -->
+<div class="dims-section" id="dimsSection">
+  <div class="section-label">Breakdown</div>
+  <div id="sDims"></div>
+</div>
+
+<!-- Context tag -->
+<div class="context-tag" id="contextTag">
+  <div class="ctx-label">Detected context</div>
+  <div class="ctx-chip" id="ctxChip"></div>
+</div>
+
+<!-- Hints -->
+<div class="hints-section" id="hintsSection">
+  <div class="section-label">Suggestions</div>
+  <div id="sHints"></div>
+</div>
+
+<script>
+let imgBase64 = null;
+
+const fileInput = document.getElementById("sidebarFile");
+const uploadMini = document.getElementById("uploadMini");
+const analyzeBtn = document.getElementById("sAnalyzeBtn");
+const previewMini = document.getElementById("previewMini");
+const previewImg = document.getElementById("sPreviewImg");
+
+uploadMini.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = e.target.result;
+    previewImg.src = data;
+    previewMini.classList.add("visible");
+    imgBase64 = data.split(",")[1];
+    analyzeBtn.disabled = false;
+  };
+  reader.readAsDataURL(file);
+});
+
+uploadMini.addEventListener("dragover", e => e.preventDefault());
+uploadMini.addEventListener("drop", e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) fileInput.files = e.dataTransfer.files, fileInput.dispatchEvent(new Event("change"));
+});
+
+analyzeBtn.addEventListener("click", async () => {
+  if (!imgBase64) return;
+  const meta = {
+    title: document.getElementById("sTitle").value.trim(),
+    genre: document.getElementById("sGenre").value,
+    audience: ""
+  };
+
+  document.getElementById("loadingMini").classList.add("visible");
+  document.getElementById("scoreSection").classList.remove("visible");
+  document.getElementById("dimsSection").classList.remove("visible");
+  document.getElementById("hintsSection").classList.remove("visible");
+  document.getElementById("contextTag").classList.remove("visible");
+  analyzeBtn.disabled = true;
+
+  chrome.runtime.sendMessage({
+    type: "ANALYZE_COVER",
+    imageBase64: imgBase64,
+    imageUrl: null,
+    metadata: meta
+  }, (response) => {
+    document.getElementById("loadingMini").classList.remove("visible");
+    analyzeBtn.disabled = false;
+
+    if (!response || !response.success) return;
+    const r = response.result;
+
+    // Score
+    document.getElementById("sBigScore").textContent = r.overallScore;
+    document.getElementById("sVerdict").textContent = r.verdict;
+    document.getElementById("scoreSection").classList.add("visible");
+    setTimeout(() => { document.getElementById("sBar").style.width = r.overallScore + "%"; }, 80);
+
+    // Dims
+    const dims = r.dimensions || {};
+    const labels = {
+      genreMatch:"Genre",thumbnailClarity:"Thumbnail",
+      readability:"Readability",clickPotential:"Clicks",
+      professionalDesign:"Design",emotionalImpact:"Emotion"
+    };
+    let html = "";
+    Object.entries(labels).forEach(([k,l]) => {
+      const v = dims[k] ?? 0;
+      const c = v >= 80 ? "#1D9E75" : v >= 60 ? "#639922" : v >= 40 ? "#BA7517" : "#E24B4A";
+      html += `<div class="dim-row">
+        <span class="dim-lbl">${l}</span>
+        <div class="dim-trk"><div class="dim-fill" id="sf-${k}" style="background:${c}"></div></div>
+        <span class="dim-v" style="color:${c}">${v}</span>
+      </div>`;
+    });
+    document.getElementById("sDims").innerHTML = html;
+    document.getElementById("dimsSection").classList.add("visible");
+    setTimeout(() => {
+      Object.keys(labels).forEach(k => {
+        const el = document.getElementById("sf-" + k);
+        if (el) el.style.width = (dims[k] ?? 0) + "%";
+      });
+    }, 80);
+
+    // Context
+    const genre = meta.genre || r.genreExpectations?.detected || "";
+    if (genre) {
+      document.getElementById("ctxChip").textContent = genre;
+      document.getElementById("contextTag").classList.add("visible");
+    }
+
+    // Hints
+    const sugs = r.suggestions || [];
+    document.getElementById("sHints").innerHTML = sugs.map(s =>
+      `<div class="hint-item"><div class="hint-dot ${s.type || "warn"}"></div><span>${s.text}</span></div>`
+    ).join("");
+    document.getElementById("hintsSection").classList.add("visible");
+  });
+});
+
+document.getElementById("closeBtn").addEventListener("click", () => {
+  window.parent.postMessage({ type: "CLOSE_SIDEBAR" }, "*");
+});
+
+// Detect page genre context
+const pageText = document.referrer + " " + (window.location.href || "");
+const genreHints = ["self-help","romance","thriller","fantasy","mystery","business","children"];
+genreHints.forEach(g => {
+  if (pageText.toLowerCase().includes(g)) {
+    const sel = document.getElementById("sGenre");
+    const opt = Array.from(sel.options).find(o => o.value.toLowerCase().includes(g));
+    if (opt && !sel.value) sel.value = opt.value;
+  }
+});
+</script>
+</body>
+</html>
